@@ -1,8 +1,9 @@
 # Import Libraries
 import streamlit as st
-from forecasting import run_forecasting_module
-from scenario_planning import run_scenario_module
-from ai_reporting import run_ai_reporting_module
+from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
+from Modules.module2_scenario_planning.scenario_app import run_scenario_module
+from Modules.module3_generative_AI.ai_reporting_app import run_ai_reporting_module
+
 
 # Set Page Configuration
 st.set_page_config(page_title="CFO Simulation Tool", layout="wide")
@@ -18,6 +19,7 @@ module = st.sidebar.radio("Choose a module:", [
     "3. Generative AI Decision Reports"
 ])
 
+# Run Selected Module
 if module == "1. Financial Forecasting":
     run_forecasting_module()
 
