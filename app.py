@@ -1,3 +1,13 @@
+#Streamlit App
+#- Beautiful hero header
+#- Sidebar navigation with deep-links (URL query parameters)
+#- Homepage with module cards
+#- Safe + Lazy Module Loading
+#- Global settings panel + demo mode + reset
+#- Friendly Status/Toasts and helpful error hanldling
+#- Footer with contact information
+
+
 # Import Libraries
 from __future__ import annotations
 
@@ -8,18 +18,6 @@ import streamlit as st
 from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
 from Modules.module2_scenario_planning.scenario_app import run_scenario_module
 from Modules.module3_generative_AI.ai_reporting_app import run_ai_reporting_module
-
-
-#Improved Streamlit App
-#- Beautiful hero header
-#- Sidebar navigation with deep-links (URL query parameters)
-#- Homepage with module cards
-#- Safe + Lazy Module Loading
-#- Global settings panel + demo mode + reset
-#- Friendly Status/Toasts and helpful error hanldling
-#- Footer with contact information
-
-#Drop-in replacement for your current /app.py file
 
 
 # ------------------------------
@@ -33,9 +31,14 @@ st.set_page_config(
     menu_items={
         'Get Help': "https://docs.streamlit.io/",
         'Report a Bug': "https://github.com/streamlit/streamlit/issues",
-        'About': "CFO Simulation Tool - polished demo shell",
+        'About': "CFO Simulation Tool with basic features. "
+        "This application includes different modules addressing key areas the CFOs are involved in. "
+        "It aims to show how even simple AI-based tools could impact aspects like accuracy, efficiency, and decision-making. ",
     }
 )
+
+# Add a logo or image if needed
+#st.sidebar.image("/Users/mariatormo02/Downloads/logan-armstrong-hVhfqhDYciU-unsplash.jpg", use_column_width=True)
 
 # Small CSS polish (kept lightweight, theme-compatible)
 st.markdown(
@@ -100,7 +103,7 @@ if "active_page" not in st.session_state:
 # ----------------------------
 with st.sidebar:
     st.markdown("### 🧠 CFO Simulation Tool")
-    st.caption("Decision iIntelligence for Finance Leaders")
+    st.caption("Decision Intelligence for Finance Leaders")
 
     # Navigation
     pages = {
@@ -134,11 +137,15 @@ with st.sidebar:
         st.toast("State cleared. Reloading…")
         st.rerun()
 
+    # Add a footer
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("Developed by [María Tormo Nieto](https://www.linkedin.com/in/maría-tormo-nieto) | Contact: maria.tormo@alumni.esade.edu") 
 
 # ----------------------------
 # Header
 # ----------------------------
 st.title("CFO Simulation Tool")
+st.markdown("A prototype to explore AI-enhanced CFO tools.")
 with st.container():
     st.markdown(
         """
@@ -176,30 +183,73 @@ def page_home() -> None:
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown("#### 1. Financial Forecasting")
-        st.markdown("Cashflow, runway, and key ratios.")
-        st.markdown("<span class='pill'>Time series</span> <span class='pill'>ARIMA/Prophet</span> <span class='pill'>What‑ifs</span>", unsafe_allow_html=True)
+        #st.markdown("Cashflow, runway, and key ratios.")
+        st.markdown("<span class='pill'>Time series</span> <span class='pill'>ARIMA/Prophet/XGBoost</span> <span class='pill'>What‑ifs</span>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            **Purpose:** Quickly forecast revenues, costs, and financial metrics.
+
+            **Features:**
+            - Train AI models (ARIMA, Prophet, XGBoost) on demo or uploaded data.
+            - Adjust inputs like seasonality, market trends, or shocks.
+            - Compare **AI forecasts vs. manual CFO predictions**.
+            - Outputs: accuracy metrics, graphs, scenario comparisons.
+
+            **Objective:** Quantify differences in speed, accuracy, and bias detection.
+            """,
+            unsafe_allow_html=True,
+        )
+        # Open Forecasting Module selection
         if st.button("Open Forecasting", key="go_forecasting"):
             st.session_state.active_page = "forecasting"
             set_qp(page="forecasting")
             st.rerun()
         st.markdown("---")
-        st.caption("Upload historicals or use demo data to generate forward-looking projections with uncertainties.")
+        st.caption("Upload Historicals or use Demo data to generate forward-looking projections with uncertainties.")
 
     with c2:
         st.markdown("#### 2. Scenario Planning")
-        st.markdown("Stress-test and compare strategic paths.")
-        st.markdown("<span class='pill'>Monte Carlo</span> <span class='pill'>Sensitivity</span> <span class='pill'>KPIs</span>", unsafe_allow_html=True)
+        #st.markdown("Stress-test and compare strategic paths.")
+        st.markdown("<span class='pill'>Best/Base/Worst Cases</span> <span class='pill'>Monte Carlo</span> <span class='pill'>Sensitivity</span> <span class='pill'>KPIs</span>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            **Purpose:** Test “what-if” scenarios for strategic planning.
+
+            **Features:**
+            - Modify drivers (inflation, interest rates, sales decline) via sliders.
+            - Dynamically recalculate forecasts and visualize outcomes.
+            - Visual outputs: waterfall charts, sensitivity tornado graphs, stress tests.
+
+            **Objective:** Explore impact of assumptions on KPIs over 3–5 year horizons.
+            """,
+            unsafe_allow_html=True,
+        )
+        # Open Scenario Planning Module selection
         if st.button("Open Scenario Planning", key="go_scenario"):
             st.session_state.active_page = "scenario"
             set_qp(page="scenario")
             st.rerun()
         st.markdown("---")
-        st.caption("Define drivers and assumptions; see outcomes, distributions, and risk heatmaps.")
+        st.caption("Define drivers and assumptions; see outcomes, distributions and risk heatmaps.")
 
     with c3:
         st.markdown("#### 3. Generative AI Decision Reports")
-        st.markdown("Auto-draft executive memos from your numbers.")
+        #st.markdown("Auto-draft executive memos from your numbers.")
         st.markdown("<span class='pill'>Narratives</span> <span class='pill'>Charts</span> <span class='pill'>Action items</span>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            **Purpose:** Auto-generate executive-ready reports from your data.
+
+            **Features:**
+            - Integrates GPT-4 API for narrative generation.
+            - Generate forecast summaries, risk reports, or board presentation content.
+            - Include insights, risk/opportunity narratives, and recommended actions.
+
+            **Objective:** Turn numbers and KPIs into concise, actionable reports instantly.
+            """,
+            unsafe_allow_html=True,
+        )
+        # Open AI Reports Module selection
         if st.button("Open AI Reports", key="go_ai"):
             st.session_state.active_page = "ai_reports"
             set_qp(page="ai_reports")
@@ -220,10 +270,10 @@ def page_home() -> None:
             """
         )
 
-
+# Financial Forecasting Page
 def page_forecasting() -> None:
     st.subheader("📈 Financial Forecasting")
-    st.caption("Upload data or use demo mode, then generate forecasts with intervals.")
+    st.caption("Upload Data or use Demo mode, then generate forecasts with intervals.")
     def runner():
         # Lazy import keeps startup fast
         from Modules.module1_financial_forecasting.forecasting_app import (
@@ -232,16 +282,17 @@ def page_forecasting() -> None:
         run_forecasting_module()
     _safe_run("Financial Forecasting", runner)
 
-
+# Scenario Planning Page
 def page_scenario() -> None:
     st.subheader("🧪 Scenario Planning")
-    st.caption("Design drivers & assumptions, run stress tests, compare outcomes.")
+    st.caption("Design Drivers & Assumptions, run Stress Tests, compare outcomes.")
     def runner():
         from Modules.module2_scenario_planning.scenario_app import run_scenario_module
         run_scenario_module()
     _safe_run("Scenario Planning", runner)
 
 
+# Generative AI Decision Reports Page
 def page_ai_reports() -> None:
     st.subheader("🤖 Generative AI Decision Reports")
     st.caption("Draft concise, board-ready narratives from your analysis.")
@@ -270,61 +321,3 @@ else:
     set_qp(page="home")
     st.session_state.active_page = "home"
     st.rerun()
-
-
-
-
-# Set Page Configuration
-#st.set_page_config(
-    #page_title="CFO Simulation Tool",
-    #page_icon="🧠", 
-    #layout="wide",
-    #initial_sidebar_state="expanded")
-
-
-# Set Design
-#st.title("🧠 CFO Simulation Tool")
-#st.markdown("A prototype to explore AI-enhanced CFO tools.")
-
-# Add Sidebar
-#st.sidebar.title("### About this App")
-#st.sidebar.markdown("Select a module to explore the capabilities of AI in financial decision-making.")
-
-# Add a brief description
-#st.sidebar.markdown("""
-#This tool is designed to help CFOs and financial professionals simulate various scenarios, forecast financial outcomes,
-#and generate AI-driven reports. Choose a module from the sidebar to get started.
-#)    
-
-# Add a logo or image if needed
-#st.sidebar.image("/Users/mariatormo02/Downloads/logan-armstrong-hVhfqhDYciU-unsplash.jpg", use_column_width=True)
-# Import necessary modules for the app  
-
-# Add a footer
-#st.sidebar.markdown("---")
-#st.sidebar.markdown("Developed by [María Tormo Nieto] (https://www.linkedin.com/in/maría-tormo-nieto) | " \
-#"Contact: maria.tormo@alumni.esade.edu")  
-       
-
-
-# Set Modules
-#module = st.sidebar.radio("Choose a module:", [
-    #"1. Financial Forecasting",
-    #"2. Scenario Planning",
-   #"3. Generative AI Decision Reports"
-#])
-
-# Run Selected Module
-#if module == "1. Financial Forecasting":
-    #run_forecasting_module()
-
-#elif module == "2. Scenario Planning":
-    #run_scenario_module()
-
-#elif module == "3. Generative AI Decision Reports":
-    #run_ai_reporting_module()
-
-
-
-
-
