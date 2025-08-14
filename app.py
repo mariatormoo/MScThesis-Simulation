@@ -1,3 +1,14 @@
+# Import Libraries
+from __future__ import annotations
+
+import textwrap
+from typing import Optional
+
+import streamlit as st
+#from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
+#from Modules.module2_scenario_planning.scenario_app import run_scenario_module
+#from Modules.module3_generative_AI.ai_reporting_app import run_ai_reporting_module
+
 #Streamlit App
 #- Beautiful hero header
 #- Sidebar navigation with deep-links (URL query parameters)
@@ -6,19 +17,6 @@
 #- Global settings panel + demo mode + reset
 #- Friendly Status/Toasts and helpful error hanldling
 #- Footer with contact information
-
-
-# Import Libraries
-from __future__ import annotations
-
-import textwrap
-from typing import Optional
-
-import streamlit as st
-from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
-from Modules.module2_scenario_planning.scenario_app import run_scenario_module
-from Modules.module3_generative_AI.ai_reporting_app import run_ai_reporting_module
-
 
 # ------------------------------
 # Set Page Configuration + Theme-friendly Tweaks
