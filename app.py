@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import textwrap
 from typing import Optional
-
+import importlib
 import streamlit as st
 #from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
 #from Modules.module2_scenario_planning.scenario_app import run_scenario_module
@@ -22,7 +22,7 @@ import streamlit as st
 # Set Page Configuration + Theme-friendly Tweaks
 # ------------------------------
 st.set_page_config(
-    page_title="CFO Simulation Tool",
+    page_title="CFO Simulation Tool: AI-Powered Toolkit",
     page_icon="🧠",  # Emoji icon for the page
     layout="wide",  # Full-width layout
     initial_sidebar_state="expanded",  # Sidebar is expanded by default
@@ -96,6 +96,7 @@ if "active_page" not in st.session_state:
     st.session_state.active_page = get_qp("page", "home")
 
 
+
 # ----------------------------
 # Sidebar: Branding + Navigation + Settings
 # ----------------------------
@@ -104,23 +105,34 @@ with st.sidebar:
     st.caption("Decision Intelligence for Finance Leaders")
 
     # Navigation
-    pages = {
+    # Define navigation mapping (pages - keys)
+    pages_dict = {
         "🏠 Home": "home",
-        "1️⃣ Financial Forecasting": "forecasting",
-        "2️⃣ Scenario Planning": "scenario",
-        "3️⃣ Generative AI Decision Reports": "ai_reports",
+        "📈 Financial Forecasting": "forecasting",
+        "🧮 Scenario Planning": "scenario",
+       "📝 Generative AI Decision Reports": "ai_reports",
     }
-    labels = list(pages.keys())
-    values = list(pages.values())
+    
+    # Ensure active_page exists in session state
+    if "active_page" not in st.session_state:
+        st.session_state.active_page = list(pages_dict.values())[0] # Default Home Page
 
-    # Preselect from URL or state
+    labels = list(pages_dict.keys())
+    values = list(pages_dict.values())
+
+
+    # Preselect index based on session state
     try:
         idx = values.index(st.session_state.active_page)
     except ValueError:
         idx = 0
 
-    choice = st.radio("Navigation", labels, index=idx, label_visibility="collapsed")
-    st.session_state.active_page = pages[choice]
+    # Navigation Radio (one widget)
+    choice = st.radio("Navigation", labels, index=idx, help="Select which module to explore", label_visibility="visible")
+    st.caption("Tip: Use the '?' icons to see help text on individual controls.")
+
+    # Update Session State and set query params
+    st.session_state.active_page = pages_dict[choice]
     set_qp(page=st.session_state.active_page)
 
     st.divider()
@@ -198,7 +210,7 @@ def page_home() -> None:
             unsafe_allow_html=True,
         )
         # Open Forecasting Module selection
-        if st.button("Open Forecasting", key="go_forecasting"):
+        if st.button("Open Forecasting", type="primary", key="go_forecasting"):
             st.session_state.active_page = "forecasting"
             set_qp(page="forecasting")
             st.rerun()
@@ -223,7 +235,7 @@ def page_home() -> None:
             unsafe_allow_html=True,
         )
         # Open Scenario Planning Module selection
-        if st.button("Open Scenario Planning", key="go_scenario"):
+        if st.button("Open Scenario Planning", type="primary", key="go_scenario"):
             st.session_state.active_page = "scenario"
             set_qp(page="scenario")
             st.rerun()
@@ -248,7 +260,7 @@ def page_home() -> None:
             unsafe_allow_html=True,
         )
         # Open AI Reports Module selection
-        if st.button("Open AI Reports", key="go_ai"):
+        if st.button("Open AI Reports", type="primary", key="go_ai"):
             st.session_state.active_page = "ai_reports"
             set_qp(page="ai_reports")
             st.rerun()
@@ -303,7 +315,7 @@ def page_ai_reports() -> None:
 
 
 # ----------------------------
-# Router
+# Router to different pages
 # ----------------------------
 page = st.session_state.active_page
 if page == "home":
@@ -319,3 +331,15 @@ else:
     set_qp(page="home")
     st.session_state.active_page = "home"
     st.rerun()
+
+st.divider()
+
+# Feedback Section (need to refine this, it appears on all pages)
+st.markdown("🌟 Leave your feedback on this prototype:")
+sentiment_mapping = ['1', '2', '3', '4', '5']
+selected_sentiment = st.feedback("stars")
+if selected_sentiment is not None:
+    st.toast(
+        f"Thank you for your feedback! You rated us {sentiment_mapping[selected_sentiment]} star(s).",
+        icon="✅",
+    )
