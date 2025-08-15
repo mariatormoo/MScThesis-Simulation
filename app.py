@@ -5,9 +5,7 @@ import textwrap
 from typing import Optional
 import importlib
 import streamlit as st
-#from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
-#from Modules.module2_scenario_planning.scenario_app import run_scenario_module
-#from Modules.module3_generative_AI.ai_reporting_app import run_ai_reporting_module
+
 
 #Streamlit App
 #- Beautiful hero header
@@ -96,7 +94,6 @@ if "active_page" not in st.session_state:
     st.session_state.active_page = get_qp("page", "home")
 
 
-
 # ----------------------------
 # Sidebar: Branding + Navigation + Settings
 # ----------------------------
@@ -110,16 +107,15 @@ with st.sidebar:
         "🏠 Home": "home",
         "📈 Financial Forecasting": "forecasting",
         "🧮 Scenario Planning": "scenario",
-       "📝 Generative AI Decision Reports": "ai_reports",
+        "📝 Generative AI Decision Reports": "ai_reports",
     }
     
     # Ensure active_page exists in session state
     if "active_page" not in st.session_state:
         st.session_state.active_page = list(pages_dict.values())[0] # Default Home Page
-
+    
     labels = list(pages_dict.keys())
     values = list(pages_dict.values())
-
 
     # Preselect index based on session state
     try:
@@ -150,22 +146,6 @@ with st.sidebar:
     # Add a footer
     st.sidebar.markdown("---")
     st.sidebar.markdown("Developed by [María Tormo Nieto](https://www.linkedin.com/in/maría-tormo-nieto) | Contact: maria.tormo@alumni.esade.edu") 
-
-# ----------------------------
-# Header
-# ----------------------------
-st.title("CFO Simulation Tool")
-st.markdown("A prototype to explore AI-enhanced CFO tools.")
-with st.container():
-    st.markdown(
-        """
-        <div class="app-hero">
-          <h3 style="margin:0">Make Better Decisions, Faster.</h3>
-          <p class="muted" style="margin:.25rem 0 0 0">Forecast cash, stress-test scenarios, and auto-generate executive-ready decision reports.</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
 
 # ----------------------------
@@ -283,13 +263,12 @@ def page_home() -> None:
 
 # Financial Forecasting Page
 def page_forecasting() -> None:
-    st.subheader("📈 Financial Forecasting")
-    st.caption("Upload Data or use Demo mode, then generate forecasts with intervals.")
+    #st.subheader("📈 Financial Forecasting")
+    #st.markdown("Forecast cash, runway, and key ratios.")
+   # st.caption("Upload Data or use Demo mode, then generate forecasts.")
     def runner():
         # Lazy import keeps startup fast
-        from Modules.module1_financial_forecasting.forecasting_app import (
-            run_forecasting_module,
-        )
+        from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
         run_forecasting_module()
     _safe_run("Financial Forecasting", runner)
 
@@ -308,9 +287,7 @@ def page_ai_reports() -> None:
     st.subheader("🤖 Generative AI Decision Reports")
     st.caption("Draft concise, board-ready narratives from your analysis.")
     def runner():
-        from Modules.module3_generative_AI.ai_reporting_app import (
-            run_ai_reporting_module,
-        )
+        from Modules.module3_generative_AI.ai_reporting_app import run_ai_reporting_module
         run_ai_reporting_module()
     _safe_run("AI Decision Reports", runner)
 
@@ -319,14 +296,38 @@ def page_ai_reports() -> None:
 # Router to different pages
 # ----------------------------
 page = st.session_state.active_page
+
+
 if page == "home":
+
+    # ----------------------------
+    # Header
+    # ----------------------------
+
+    st.title("CFO Simulation Tool")
+    st.markdown("A prototype to explore AI-enhanced CFO tools.")
+    with st.container():
+        st.markdown(
+            """
+            <div class="app-hero">
+                <h3 style="margin:0">Make Better Decisions, Faster.</h3>
+                <p class="muted" style="margin:.25rem 0 0 0">Forecast financials, stress test scenarios, and auto-generate executive-ready decision reports.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     page_home()
+
 elif page == "forecasting":
     page_forecasting()
+
 elif page == "scenario":
     page_scenario()
+
 elif page == "ai_reports":
     page_ai_reports()
+    
 else:
     st.warning("Unknown page. Returning home…")
     set_qp(page="home")

@@ -6,8 +6,10 @@ from .forecasting_models import load_data, run_prophet_model, plot_forecast
 # This function sets up the Streamlit app for financial forecasting
 def run_forecasting_module():
     st.header("📈 Financial Forecasting")
+    st.subheader("Forecast revenues, costs, financials and key ratios.")
+    st.caption("Upload Data or use Demo mode, then generate forecasts.")
 
-    ticker = st.text_input("Enter stock ticker (e.g., AAPL)", "AAPL")
+    ticker = st.text_input("Enter desired stock ticker (e.g., AAPL)", "AAPL")
     months = st.slider("Forecast horizon (months)", 1, 12, 3)
 
     if st.button("Run Forecast"):

@@ -3,7 +3,7 @@ import yfinance as yf
 from prophet import Prophet
 import matplotlib.pyplot as plt
 
-# Load Financial Data from Yahoo Financ
+# Load Financial Data from Yahoo Finance
 # This function fetches historical stock data for a given ticker
 def load_data(ticker):
     try:
