@@ -128,7 +128,7 @@ with st.sidebar:
         idx = 0
 
     # Navigation Radio (one widget)
-    choice = st.radio("Navigation", labels, index=idx, help="Select which module to explore", label_visibility="visible")
+    choice = st.radio("Modules Navigation", labels, index=idx, help="Select which module to explore", label_visibility="visible")
     st.caption("Tip: Use the '?' icons to see help text on individual controls.")
 
     # Update Session State and set query params
@@ -194,7 +194,7 @@ def page_home() -> None:
     with c1:
         st.markdown("#### 1. Financial Forecasting")
         #st.markdown("Cashflow, runway, and key ratios.")
-        st.markdown("<span class='pill'>Time series</span> <span class='pill'>ARIMA/Prophet/XGBoost</span> <span class='pill'>What‑ifs</span>", unsafe_allow_html=True)
+        st.markdown("<span class='pill'>Time series</span> <span class='pill'>ARIMA/Prophet/XGBoost</span>", unsafe_allow_html=True)
         st.markdown(
             """
             **Purpose:** Quickly forecast revenues, costs, and financial metrics.
@@ -215,12 +215,12 @@ def page_home() -> None:
             set_qp(page="forecasting")
             st.rerun()
         st.markdown("---")
-        st.caption("Upload Historicals or use Demo data to generate forward-looking projections with uncertainties.")
+        st.caption("Upload Historicals or use Demo data to generate forward-looking projections even with uncertainties.")
 
     with c2:
         st.markdown("#### 2. Scenario Planning")
         #st.markdown("Stress-test and compare strategic paths.")
-        st.markdown("<span class='pill'>Best/Base/Worst Cases</span> <span class='pill'>Monte Carlo</span> <span class='pill'>Sensitivity</span> <span class='pill'>KPIs</span>", unsafe_allow_html=True)
+        st.markdown("<span class='pill'>Best/Base/Worst Cases</span> <span class='pill'>What‑ifs</span> <span class='pill'>Visualizations</span>", unsafe_allow_html=True)
         st.markdown(
             """
             **Purpose:** Test “what-if” scenarios for strategic planning.
@@ -240,7 +240,7 @@ def page_home() -> None:
             set_qp(page="scenario")
             st.rerun()
         st.markdown("---")
-        st.caption("Define drivers and assumptions; see outcomes, distributions and risk heatmaps.")
+        st.caption("Define drivers and assumptions; see outcomes, distributions and insights.")
 
     with c3:
         st.markdown("#### 3. Generative AI Decision Reports")
@@ -265,13 +265,14 @@ def page_home() -> None:
             set_qp(page="ai_reports")
             st.rerun()
         st.markdown("---")
-        st.caption("Turn insights into clear, structured recommendations for the board.")
+        st.caption("Automatically turn insights into recommendations for the board.")
 
     st.divider()
-    with st.expander("👀 What judges want to see (quick checklist)"):
+    
+    with st.expander("👀 What judges want to see (quick checklist), for competitions"):
         st.markdown(
             """
-            - Immediate clarity (what it does, in 1 sentence)
+            - Immediate Clarity (what it does, in 1 sentence)
             - Minimal clicks to ‘wow’ (demo data preloaded)
             - Beautiful defaults (theme, spacing, typography)
             - Speed (lazy loading + caching)
