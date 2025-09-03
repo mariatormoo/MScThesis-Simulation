@@ -40,7 +40,7 @@ except Exception:
 
 
 # Load Financial Data from Yahoo Finance
-def load_data(ticker: str) -> Optional[pd.DataFrame]:
+def load_data_from_yahoo(ticker: str) -> Optional[pd.DataFrame]:
     """ 
     Load historical stock data for a given ticker from Yahoo Finance if yfinance is available.
     Returns a DataFrame with historical stock data with columns ['ds','y'] suitable for Prophet-style models."""
@@ -238,7 +238,7 @@ def fit_xgboost(train: pd.DataFrame, max_lag: int = 7):
     return xgbooster, max_lag
 
 
-def forecast_prophet(model_tuple, steps: int, history: np.ndarray):
+def forecast_xgboost(model_tuple, steps: int, history: np.ndarray):
     """
     Rolling forecast using trained xgboost booster and lag window.
     """

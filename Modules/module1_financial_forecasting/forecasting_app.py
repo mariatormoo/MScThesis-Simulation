@@ -1,6 +1,23 @@
-# MODEL 1 UI
+# Streamlit UI for Module 1: Financial Forecasting
+from __future__ import annotations
+
+# Import necessary libraries
+import pandas as pd
+import numpy as np
 import streamlit as st
-from .forecasting_models import load_data, run_prophet_model, plot_forecast
+
+# Import Models
+from forecasting_models import (
+    load_data_from_yahoo,
+    load_data_from_csv,
+    train_test_split,
+    fit_arima, forecast_arima,
+    fit_holtwinters, forecast_holtwinters,
+    fit_prophet, forecast_prophet,
+    fit_xgboost, forecast_xgboost,
+    mape, rmse,
+    manual_cfo_naive_last_value, manual_cfo_growth_rate,
+)
 
 # Function to run the forecasting module
 # This function sets up the Streamlit app for financial forecasting
