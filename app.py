@@ -6,15 +6,12 @@ from typing import Optional
 import importlib
 import streamlit as st
 
-
-#Streamlit App
-#- Beautiful hero header
-#- Sidebar navigation with deep-links (URL query parameters)
-#- Homepage with module cards
-#- Safe + Lazy Module Loading
-#- Global settings panel + demo mode + reset
-#- Friendly Status/Toasts and helpful error hanldling
-#- Footer with contact information
+# MAIN ENTRY - Streamlit App for CFO Simulation Tool.
+# Run with: streamlit run app.py
+# Modules:
+# 1. Financial Forecasting
+# 2. Scenario Planning (What-If)
+# 3. Generative AI Decision Reports
 
 # ------------------------------
 # Set Page Configuration + Theme-friendly Tweaks

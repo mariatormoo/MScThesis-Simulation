@@ -1,4 +1,4 @@
-# forecasting_app.py
+# MODEL 1 UI
 import streamlit as st
 from .forecasting_models import load_data, run_prophet_model, plot_forecast
 
