@@ -120,26 +120,119 @@ def run_scenario_module():
         page_icon="📊",
         layout="wide",
     )
-    st.caption("Tweak drivers, compare scenarios, run a quick Monte Carlo, and see what moves the needle.")
+    #st.caption("Tweak drivers, compare scenarios, run a quick Monte Carlo, and see what moves the needle.")
+    st.caption("Adjust inflation, sales change and interest rates; see KPI impacts and stress tests.")
 
-    # Read URL Parameters for Sliders
-    try:
-        qp = st.query_params  # type: ignore[attr-defined]
-        qp_infl = float(qp.get("infl", 5.0))
-        qp_sales = float(qp.get("sales", 0.0))
-        qp_rate = float(qp.get("rate", 2.0))
-    except Exception:
-        params = st.experimental_get_query_params()
-        qp_infl = float((params.get("infl", [5.0]) or [5.0])[0])
-        qp_sales = float((params.get("sales", [0.0]) or [0.0])[0])
-        qp_rate = float((params.get("rate", [2.0]) or [2.0])[0])
-    
-    # Base Values
-    BASE_SALES = 100000.0
-    BASE_COSTS = 60000.0
-    BASE_INTEREST = 2000.0
+    # Basic Inputs: Base Annual Metrics
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        base_sales = st.number_input("Base Annual Sales ($)", min_value=0.0, value=100000.0, step=1000.0, format="%.0f", help="e.g., revenue")
+    with col2:
+        base_costs = st.number_input("Base Annual Costs ($)", min_value=0.0, value=60000.0, step=1000.0, format="%.0f")
+    with col3:
+        base_interest = st.number_input("Base Interest Expense ($)", min_value=0.0, value=2000.0, step=100.0, format="%.0f")
+
+    st.subheader("Assumptions")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("- Inflation (%): Impact on costs and prices.")
+        inflation = st.slider("Inflation (%)", -20.0, 40.0, 5.0, step=0.5)
+    with col2:
+        st.markdown("- Sales Change (%): Impact on sales volume or price changes.")
+        sales_change = st.slider("Sales Change (%)", -50.0, 50.0, 0.0, step=1.0)
+    with col3:
+        st.markdown("- Interest Rate (%): Impact on financing costs.") 
+        interest_rate = st.slider("Interest Rate Change (%)", -50.0, 100.0, 0.0, step=1.0)
+
+    years = st.slider("Projection Horizon (years)", 1, 10, 3)
+    discount_rate = st.slider("Discount Rate (%) - for NPV", 0.0, 30.0, 10.0, step=0.5)
+
+    # Compute Adjusted Annual Values
+    adj_sales = base_sales * (1 + sales_change / 100)
+    adj_costs = base_costs * (1 + inflation / 100)
+    adj_interest = base_interest * (1 + interest_rate / 100)
+    profit = adj_sales - adj_costs - adj_interest
+    margin = (profit / adj_sales * 100) if adj_sales > 0 else 0.0
+
+    st.metric("Adjusted Profit", f"${profit:,.0f}")
+    st.metric("Profit Margin (%)", f"${margin:,.1f}%")
+
+    # Visual Waterfall
+    st.plotly_chart(_waterfall_chart(adj_sales, adj_costs, adj_interest, profit), use_container_width=True)
 
 
+    # Multi-Year Projection with Compounding
+    df = pd.DataFrame(index=range(1, years + 1), columns=["Sales", "Costs", "Interest", "Profit", "FreeCF", "Discount Factor", "PV of FCF"])
+
+    sales, costs, interest = base_sales, base_costs, base_interest
+
+    for year in range(1, years + 1):
+        sales = sales * (1 + sales_change / 100)
+        costs = costs * (1 + inflation / 100)
+        interest = interest * (1 + interest_rate / 100)
+        profit = sales - costs - interest
+        free_cf = profit # Simple proxy for free cash flow
+        # CHECK FORMULAS FOR FCF AND NPV
+        df.loc[year, ["Sales", "Costs", "Interest", "Profit", "FreeCF"]] = [sales, costs, interest, profit, free_cf]
+        df.loc[year, "Discount Factor"] = 1 / ((1 + discount_rate / 100) ** year) if discount_rate > 0 else 1.0
+        df.loc[year, "PV of FCF"] = df.loc[year, "FreeCF"] * df.loc[year, "Discount Factor"]
+
+    # Projections
+    st.subheader("Projection Table")
+    st.dataframe(df.style.format("${:,.0f}"), subset=["Sales", "Costs", "Interest", "Profit", "FreeCF", "PV of FCF"]).format("{:.3%}", subset=["Discount Factor"])
+
+    st.write(f"**Net Present Value (NPV) of Free Cash Flows (FCF) over {years} years @ {discount_rate:.1f}%:** ${df['PV of FCF'].sum():,.0f}")
+
+
+    # Tornado Sensitivity Chart
+    with st.expander("🌪️ Sensitivity: What moves profit most? (±10% on each driver)", expanded=False):
+        st.plotly_chart(_tornado_sensitivity(base_sales, base_costs, base_interest, inflation, sales_change, interest_rate), use_container_width=True)
+
+
+    # Monte Carlo Stress Test
+    with st.expander("🎲 Monte Carlo Stress Test", expanded=False):
+        runs = st.slider("Simulation Runs", 100, 5000, 1000, step=100)
+
+        # Simple Assumption: Normal noise around the selected % changes
+        with st.status("Running simulation…", expanded=False):
+            sales_mu, sales_sd = sales_change, max(1.0, abs(sales_change)/3)
+            infl_mu, infl_sd = inflation, max(1.0, abs(inflation)/3)
+            interest_rate_mu, interest_rate_sd = interest_rate, max(1.0, abs(interest_rate)/3)
+
+            range = np.random.default_rng(42)
+            sales_draws = range.normal(loc=sales_mu, scale=sales_sd, size=runs)
+            infl_draws = range.normal(loc=infl_mu, scale=infl_sd, size=runs)
+            interest_rate_draws = range.normal(loc=interest_rate_mu, scale=interest_rate_sd, size=runs)
+
+            sim_profits = base_sales * (1 + sales_draws / 100) - base_costs * (1 + infl_draws / 100) - base_interest * (1 + interest_rate_draws / 100)
+            st.write(f"Mean Profit: ${sim_profits.mean():,.0f} | Median: ${np.median(sim_profits):,.0f} | 5th Pct: ${np.percentile(sim_profits, 5):,.0f} | 95th Pct: ${np.percentile(sim_profits, 95):,.0f} | Pr(loss): {(sim_profits < 0).mean():.1%}")
+            st.bar_chart(pd.Series(sim_profits, name="Profit Distribution"), use_container_width=True)
+
+
+            # Executive Summary Download
+            summary_md = f"""
+            ## Executive Summary
+            - Base Profit: {profit:,.0f} | Margin: {margin:.1f}%
+            - Mean (Monte Carlo): ${sim_profits.mean():,.0f} | Median (Monte Carlo): ${np.median(sim_profits):,.0f}
+            - 5th- 95th Pct (Monte Carlo): ${np.percentile(sim_profits, 5):,.0f} - {np.percentile(sim_profits, 95):,.0f}
+            - Loss Probability: {(sim_profits < 0).mean():.1%}
+
+            - Base Sales: ${base_sales:,.0f} | Base Costs: ${base_costs:,.0f} | Base Interest: ${base_interest:,.0f}
+            - Inflation: {inflation:.1f}% | Sales Δ: {sales_change:.1f}% | Rate Δ: {interest_rate:.1f}%
+            - Adjusted Profit: ${profit:,.0f} | Margin: {margin:.1f}%
+            - NPV of FCF over {years} years @ {discount_rate:.1f}%: ${df['PV of FCF'].sum():,.0f} 
+            """
+            st.download_button("📥 Download Executive Summary (MD)", summary_md, "scenario_executive_summary.md")    
+            # Consider only doing MC things for the summary      
+
+
+
+
+
+
+    # Previous Option with Tabs
+
+    """
     # Page Tabs
     tabs = st.tabs(["🔧 What-If Scenario", "🧮 Scenario Comparison", "🎲 Monte Carlo", "🌪️ Sensitivity Analysis", "📖 Executive Summary"])
 
@@ -242,28 +335,31 @@ def run_scenario_module():
         with st.expander("🌪️ What moves profit most? (±10%)", expanded=False):
             st.plotly_chart(_tornado_sensitivity(BASE_SALES, BASE_COSTS, BASE_INTEREST, inflation, sales_change, interest_rate), use_container_width=True)
 
-
+            
     # --- Tab 5: Executive Summary / Download ---
     with tabs[4]:
         # Executive summary download of the Monte Carlo 
         summary_md = f"""
         ## Executive Summary
-        - Inflation: {inflation:.1f}% | Sales Δ: {sales_change:.1f}% | Rate: {interest_rate:.1f}%
-        - Profit: ${profit:,.0f} (P5 ${p5:,.0f} · Median ${p50:,.0f} · P95 ${p95:,.0f})
-        - Loss probability: {(mc_df['profit'] < 0).mean():.1%}
-        """
-        st.download_button("📥 Download Monte Carlo Summary (MD)", summary_md, "scenario_summary.md")
+        #- Inflation: {inflation:.1f}% | Sales Δ: {sales_change:.1f}% | Rate: {interest_rate:.1f}%
+        #- Profit: ${profit:,.0f} (P5 ${p5:,.0f} · Median ${p50:,.0f} · P95 ${p95:,.0f})
+        #- Loss probability: {(mc_df['profit'] < 0).mean():.1%}
+        
+        #st.download_button("📥 Download Monte Carlo Summary (MD)", summary_md, "scenario_summary.md")
+
 
     
-
+"""
 if __name__ == "__main__":
     # Run the scenario module directly if this script is executed
     run_scenario_module()
+"""
 
     
 
 # WORKING ALL TOGETHER
 
+"""
 def run_scenario_module():
     st.header("📊 Scenario Planning (What‑If & Risk)")
     st.caption("Tweak drivers, compare scenarios, run a quick Monte Carlo, and see what moves the needle.")
@@ -372,14 +468,15 @@ def run_scenario_module():
         # Executive summary download on this page
         summary_md = f"""
         ## Executive Summary
-        - Inflation: {inflation:.1f}% | Sales Δ: {sales_change:.1f}% | Rate: {interest_rate:.1f}%
-        - Profit: ${profit:,.0f} (P5 ${p5:,.0f} · Median ${p50:,.0f} · P95 ${p95:,.0f})
-        - Loss probability: {(mc_df['profit'] < 0).mean():.1%}
-        """
-        st.download_button("📥 Download Summary (MD)", summary_md, "scenario_summary.md")
+        #- Inflation: {inflation:.1f}% | Sales Δ: {sales_change:.1f}% | Rate: {interest_rate:.1f}%
+        #- Profit: ${profit:,.0f} (P5 ${p5:,.0f} · Median ${p50:,.0f} · P95 ${p95:,.0f})
+        #- Loss probability: {(mc_df['profit'] < 0).mean():.1%}
 
-    st.divider()
+        #st.download_button("📥 Download Summary (MD)", summary_md, "scenario_summary.md")
 
+    #st.divider()
+
+"""
     # Tornado sensitivity
     with st.expander("🌪️ What moves profit most? (±10%)", expanded=False):
         st.plotly_chart(_tornado_sensitivity(base_sales, base_costs, base_interest, inflation, sales_change, interest_rate), use_container_width=True)
@@ -388,3 +485,5 @@ def run_scenario_module():
     if rows:
         csv = df.to_csv(index=True)
         st.download_button("⬇️ Download scenario table (CSV)", data=csv, file_name="scenario_compare.csv", mime="text/csv")
+
+"""
