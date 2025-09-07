@@ -1,6 +1,7 @@
-# MODEL 2 UI
+# Streamlit UI for Module 2: Scenario Planning (What-If)
 from __future__ import annotations
 
+# Import Libraries
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
@@ -13,27 +14,29 @@ import streamlit as st
 
 # Waterfall Chart
 def _waterfall_chart(adjusted_sales: float, adjusted_costs: float, adjusted_interest: float, profit: float) -> go.Figure:
+    """Waterfall showing how adjustments impact profit."""
     fig = go.Figure(
         go.Waterfall(
             name="Scenario",
             orientation="v",
             measure=["relative", "relative", "relative", "total"],
             x=["Sales", "Costs", "Interest", "Profit"],
-            textposition="outside",
+            #textposition="outside",
             text=[
-                f"${adjusted_sales:,.0f}",
-                f"-${adjusted_costs:,.0f}",
-                f"-${adjusted_interest:,.0f}",
-                f"${profit:,.0f}",
+                f"{adjusted_sales:,.0f}",
+                f"{-adjusted_costs:,.0f}",
+                f"{-adjusted_interest:,.0f}",
+                f"{profit:,.0f}"
             ],
             y=[adjusted_sales, -adjusted_costs, -adjusted_interest, profit],
-            connector={"line": {"color": "rgb(63, 63, 63)"}},
+            #connector={"line": {"color": "rgb(63, 63, 63)"}},
         )
     )
     # Plot Big Title
-    st.subheader("Scenario Waterfall Analysis")
+    #st.subheader("Scenario Waterfall Analysis")
     #fig.update_layout(title="Scenario Waterfall Analysis", margin=dict(l=20, r=20, t=40, b=20))
-    fig.update_layout(margin=dict(l=20, r=20, t=40, b=20))
+    fig.update_layout(title="Scenario Waterfall Impact Analysis", showlegend=False)
+    #fig.update_layout(margin=dict(l=20, r=20, t=40, b=20))
     return fig
 
 
@@ -41,11 +44,11 @@ def _waterfall_chart(adjusted_sales: float, adjusted_costs: float, adjusted_inte
 def _tornado_sensitivity(base_sales: float, base_costs: float, base_interest: float, inflation: float, sales_change: float, interest_rate: float) -> go.Figure:
     """Compute simple +/-10% sensitivity on each driver and plot as tornado bars."""
 
-    def profit_fn(i_rate, s_change, r_rate):
+    def profit_fn(infl, s_change, i_rate):
         # Calculate Scenario Profit based on adjusted values, costs, and interest rate.
         adj_sales = base_sales * (1 + s_change / 100)
-        adj_costs = base_costs * (1 + i_rate / 100)
-        adj_interest = base_interest * (1 + r_rate / 100)
+        adj_costs = base_costs * (1 + infl / 100)
+        adj_interest = base_interest * (1 + i_rate / 100)
         profit = adj_sales - adj_costs - adj_interest
         return profit
 
@@ -55,34 +58,34 @@ def _tornado_sensitivity(base_sales: float, base_costs: float, base_interest: fl
         ("Interest Rate", interest_rate, lambda v: profit_fn(inflation, sales_change, v)),
     ]
 
-    lows, highs, labels = [], [], []
-    for name, val, fn in drivers:
-        p_low = fn(val - 10)
-        p_high = fn(val + 10)
-        lows.append(p_low)
-        highs.append(p_high)
-        labels.append(name)
-
     base_profit = profit_fn(inflation, sales_change, interest_rate)
-    delta_low = [p - base_profit for p in lows]
-    delta_high = [p - base_profit for p in highs]
+
+    names, lows, highs = [], [], []
+    for name, cur, fn in drivers:
+        p_low = fn(cur - 10)
+        p_high = fn(cur + 10)
+        names.append(name)
+        lows.append(p_low - base_profit)
+        highs.append(p_high - base_profit)
+
 
     fig = go.Figure()
-    fig.add_bar(y=labels, x=delta_low, orientation="h", name="-10%", base=0)
-    fig.add_bar(y=labels, x=delta_high, orientation="h", name="+10%", base=0)
+    fig.add_bar(y=names, x=lows, orientation="h", name="-10%")
+    fig.add_bar(y=names, x=highs, orientation="h", name="+10%")
+
     # Plot Big Title
-    st.subheader("Tornado Sensitivity Analysis (±10%)")
+    #st.subheader("Tornado Sensitivity Analysis (±10%)")
     fig.update_layout(
-        #title="Tornado Sensitivity (±10%)",
-        barmode="overlay",
-        xaxis_title="Δ Profit",
-        margin=dict(l=80, r=20, t=40, b=30),
+        title="Tornado Sensitivity (profit delta vs. base)",
+        barmode="overlay"
+        #xaxis_title="Δ Profit",
+        #margin=dict(l=80, r=20, t=40, b=30),
     )
     return fig
 
 
 # Monte Carlo Simulation
-def _monte_carlo(base_sales: float, base_costs: float, base_interest: float, inflation: float, sales_change: float, interest_rate: float, runs: int = 1000, seed: int | None = 42) -> pd.DataFrame:
+"""def _monte_carlo(base_sales: float, base_costs: float, base_interest: float, inflation: float, sales_change: float, interest_rate: float, runs: int = 1000, seed: int | None = 42) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     infl_samp = rng.normal(loc=inflation, scale=2.0, size=runs)
     sales_samp = rng.normal(loc=sales_change, scale=5.0, size=runs)
@@ -102,7 +105,7 @@ def _monte_carlo(base_sales: float, base_costs: float, base_interest: float, inf
         "interest": interest,
         "profit": profit,
     })
-
+"""
 
 # =========================
 # Main Page with Tabs
