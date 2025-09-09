@@ -58,33 +58,33 @@ def run_forecasting_module():
     
     # When data is loaded, show options + run models
     if df is not None and not df.empty:
-        st.success("Loaded {len(df)} rows from {df['ds'].min().date()} to {df['ds].max().date()}")
+        st.success(f"Loaded {len(df)} rows from {df['ds'].min().date()} to {df['ds'].max().date()}")
         st.line_chart(df.set_index('ds')['y'])
 
-        # Model & Horizon Controls
-        with st.expander("⚙️ Model & Forecasting Options", expanded=True):
-            horizon_months = st.slider("Forecast horizon (months)", min_value=1, max_value=24, value=6)
-            horizon_days = horizon_months * 30
-            st.write(f"Forecasting {horizon_days} days into the future.")
+    # Model & Horizon Controls
+    with st.expander("⚙️ Model & Forecasting Options", expanded=True):
+        horizon_months = st.slider("Forecast horizon (months)", min_value=1, max_value=24, value=6)
+        horizon_days = horizon_months * 30
+        st.write(f"Forecasting {horizon_days} days into the future.")
+        
+        test_days = st.slider("Holdout size (days) to compare accuracy", min_value=0, max_value=365, value=30)
+        model_choice = st.multiselect(
+            "Select forecasting models to run",
+            options=["ARIMA(1,1,1)", "Holt-Winters", "Prophet*", "XGBoost*"],
+            default=["ARIMA(1,1,1)", "Holt-Winters"]    
+        )
             
-            test_days = st.slider("Holdout size (days) to compare accuracy", min_value=0, max_value=365, value=30)
-            model_choice = st.multiselect(
-                "Select forecasting models to run",
-                options=["ARIMA(1,1,1)", "Holt-Winters", "Prophet*", "XGBoost*"],
-                default=["ARIMA(1,1,1)", "Holt-Winters"]    
-            )
-            
-            seasonal_periods = st.number_input("Seasonal periods (for Holt-Winters)", min_value=0, max_value=365, value=0, step=1, 
+        seasonal_periods = st.number_input("Seasonal periods (for Holt-Winters)", min_value=0, max_value=365, value=0, step=1, 
                                                help="Set to 0 for no seasonality. Set >0 to enable additive seasonality.")
             
 
 
-        # CFO Manual Scenario for Comparison
-        with st.expander("👤 CFO Manual Forecast", expanded=False):
-            cfo_mode = st.selectbox("Select CFO Forecasting Assumption", ["Naive flat (last value)", "Monthly Growth Rate (%)"], index=0)
+    # CFO Manual Scenario for Comparison
+    with st.expander("👤 CFO Manual Forecast", expanded=False):
+        cfo_mode = st.selectbox("Select CFO Forecasting Assumption", ["Naive flat (last value)", "Monthly Growth Rate (%)"], index=0)
             
-            if cfo_mode == "Monthly Growth Rate (%)":
-                cfo_growth = st.number_input("Enter expected monthly growth rate (%)", min_value=-100.0, max_value=100.0, value=2.0, step=0.1)            
+        if cfo_mode == "Monthly Growth Rate (%)":
+            cfo_growth = st.number_input("Enter expected monthly growth rate (%)", min_value=-100.0, max_value=100.0, value=2.0, step=0.1)            
 
 
         # Train / Test Split (chronological)
