@@ -40,7 +40,7 @@ except Exception:
 
 
 # Load Financial Data from Yahoo Finance
-def load_data_from_yahoo(ticker: str) -> Optional[pd.DataFrame]:
+def load_data_from_yahoo(ticker: str, period: str, interval: str) -> Optional[pd.DataFrame]:
     """ 
     Load historical stock data for a given ticker from Yahoo Finance if yfinance is available.
     Returns a DataFrame with historical stock data with columns ['ds','y'] suitable for Prophet-style models."""
@@ -48,7 +48,7 @@ def load_data_from_yahoo(ticker: str) -> Optional[pd.DataFrame]:
         #print("yfinance library is not installed.")
         return None
     try:
-        df = yf.download(ticker, period="5y", interval="1d").reset_index(drop=False)
+        df = yf.download(ticker, period=period, interval=interval).reset_index(drop=False)
         if df.empty:
             #print(f"No data found for ticker: {ticker}")
             return None

@@ -260,33 +260,46 @@ def page_home() -> None:
 
 # Financial Forecasting Page
 def page_forecasting() -> None:
-    #st.subheader("📈 Financial Forecasting")
+    st.subheader("📈 Financial Forecasting")
     #st.markdown("Forecast cash, runway, and key ratios.")
-   # st.caption("Upload Data or use Demo mode, then generate forecasts.")
+    st.caption("Upload Data or use Demo mode, then generate forecasts.")
+    from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
+    run_forecasting_module()
+    
+    """Lazy Imports 
     def runner():
-        # Lazy import keeps startup fast
         from Modules.module1_financial_forecasting.forecasting_app import run_forecasting_module
         run_forecasting_module()
-    _safe_run("Financial Forecasting", runner)
+    _safe_run("Financial Forecasting", runner)"""
 
 # Scenario Planning Page
 def page_scenario() -> None:
     st.subheader("🧪 Scenario Planning")
     st.caption("Design Drivers & Assumptions, run Stress Tests, compare outcomes.")
+    
+    from Modules.module2_scenario_planning.scenario_app import run_scenario_module
+    run_scenario_module()
+
+    """Lazy Imports
     def runner():
         from Modules.module2_scenario_planning.scenario_app import run_scenario_module
         run_scenario_module()
-    _safe_run("Scenario Planning", runner)
+    _safe_run("Scenario Planning", runner)"""
 
 
 # Generative AI Decision Reports Page
 def page_ai_reports() -> None:
     st.subheader("🤖 Generative AI Decision Reports")
     st.caption("Draft concise, board-ready narratives from your analysis.")
+    
+    from Modules.module3_generative_AI.genai_reports import run_genai_module
+    run_genai_module()
+
+    """Lazy Imports
     def runner():
-        from Modules.module3_generative_AI.ai_reporting_app import run_ai_reporting_module
-        run_ai_reporting_module()
-    _safe_run("AI Decision Reports", runner)
+        from Modules.module3_generative_AI.genai_reports import run_genai_module
+        run_genai_module()
+    _safe_run("AI Decision Reports", runner)"""
 
 
 # ----------------------------

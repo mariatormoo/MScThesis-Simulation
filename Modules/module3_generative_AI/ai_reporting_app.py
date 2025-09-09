@@ -1,4 +1,4 @@
-# MODEL 3 UI (OpenAI Integration)
+# Streamlit UI for Module 3: Generative AI Decision Reports
 from __future__ import annotations
 
 import streamlit as st

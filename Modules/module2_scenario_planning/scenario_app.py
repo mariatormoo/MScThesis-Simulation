@@ -179,7 +179,17 @@ def run_scenario_module():
 
     # Projections
     st.subheader("Projection Table")
-    st.dataframe(df.style.format("${:,.0f}"), subset=["Sales", "Costs", "Interest", "Profit", "FreeCF", "PV of FCF"]).format("{:.3%}", subset=["Discount Factor"])
+    
+    styled_df = df.style.format({
+        "Sales": "${:,.0f}",
+        "Costs": "${:,.0f}",
+        "Interest": "${:,.0f}",
+        "Profit": "${:,.0f}",
+        "FreeCF": "${:,.0f}",
+        "Discount Factor": "{:.3f}",
+        "PV of FCF": "${:,.0f}"
+    })
+    st.dataframe(styled_df)
 
     st.write(f"**Net Present Value (NPV) of Free Cash Flows (FCF) over {years} years @ {discount_rate:.1f}%:** ${df['PV of FCF'].sum():,.0f}")
 
@@ -199,10 +209,10 @@ def run_scenario_module():
             infl_mu, infl_sd = inflation, max(1.0, abs(inflation)/3)
             interest_rate_mu, interest_rate_sd = interest_rate, max(1.0, abs(interest_rate)/3)
 
-            range = np.random.default_rng(42)
-            sales_draws = range.normal(loc=sales_mu, scale=sales_sd, size=runs)
-            infl_draws = range.normal(loc=infl_mu, scale=infl_sd, size=runs)
-            interest_rate_draws = range.normal(loc=interest_rate_mu, scale=interest_rate_sd, size=runs)
+            time_range = np.random.default_rng(42)
+            sales_draws = time_range.normal(loc=sales_mu, scale=sales_sd, size=runs)
+            infl_draws = time_range.normal(loc=infl_mu, scale=infl_sd, size=runs)
+            interest_rate_draws = time_range.normal(loc=interest_rate_mu, scale=interest_rate_sd, size=runs)
 
             sim_profits = base_sales * (1 + sales_draws / 100) - base_costs * (1 + infl_draws / 100) - base_interest * (1 + interest_rate_draws / 100)
             st.write(f"Mean Profit: ${sim_profits.mean():,.0f} | Median: ${np.median(sim_profits):,.0f} | 5th Pct: ${np.percentile(sim_profits, 5):,.0f} | 95th Pct: ${np.percentile(sim_profits, 95):,.0f} | Pr(loss): {(sim_profits < 0).mean():.1%}")

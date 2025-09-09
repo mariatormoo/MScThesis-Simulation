@@ -5,19 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import numpy as np
 import streamlit as st
-
-# Import Models
-from forecasting_models import (
-    load_data_from_yahoo,
-    load_data_from_csv,
-    train_test_split,
-    fit_arima, forecast_arima,
-    fit_holtwinters, forecast_holtwinters,
-    fit_prophet, forecast_prophet,
-    fit_xgboost, forecast_xgboost,
-    mape, rmse,
-    manual_cfo_naive_last_value, manual_cfo_growth_rate,
-)
+from . import forecasting_models as fm
 
 
 # Function to run the forecasting module
@@ -43,7 +31,7 @@ def run_forecasting_module():
             period = st.selectbox("Select period", ["1y", "2y", "5y", "10y", "max"], index=2)
         if st.button("Load Data", type="primary"):
             with st.spinner("Fetching data..."):
-                df = load_data_from_yahoo(ticker, period=period, interval="1d")
+                df = fm.load_data_from_yahoo(ticker, period=period, interval="1d")
                 # Error handling
                 if df is None or df.empty:
                     st.error("Failed to fetch data. Please check the ticker symbol.") 
@@ -57,7 +45,7 @@ def run_forecasting_module():
         uploaded_file = st.file_uploader("Upload your CSV file (columns: date, value)", type=["csv"])
         # If data is uploaded
         if uploaded_file is not None:
-            df = load_data_from_csv(uploaded_file)
+            df = fm.load_data_from_csv(uploaded_file)
             # Error handling
             if df is None or df.empty:
                 st.error("Could not parse CSV. Expected two columns: date & value. Please check the file format and contents.")
@@ -82,7 +70,7 @@ def run_forecasting_module():
             test_days = st.slider("Holdout size (days) to compare accuracy", min_value=0, max_value=365, value=30)
             model_choice = st.multiselect(
                 "Select forecasting models to run",
-                options=["ARIMA(1,1,)", "Holt-Winters", "Prophet*", "XGBoost*"],
+                options=["ARIMA(1,1,1)", "Holt-Winters", "Prophet*", "XGBoost*"],
                 default=["ARIMA(1,1,1)", "Holt-Winters"]    
             )
             
@@ -100,21 +88,21 @@ def run_forecasting_module():
 
 
         # Train / Test Split (chronological)
-        train, test = train_test_split(df, test_size=test_days)
+        train, test = fm.train_test_split(df, test_size=test_days)
 
         # Fit & Forecast
         results = {}
         # If user selected Holdout>0, compare on that holdout length
         # Else, plot horizon_days
-        steps = horizon_days if test_days == 0 else len(test_days)
+        steps = horizon_days if test_days == 0 else len(test)
 
         with st.spinner("Training models..."):
             # ARIMA
             if "ARIMA(1,1,1)" in model_choice:
                 try:
-                    arima_model = fit_arima(train, order=(1,1,1))
+                    arima_model = fm.fit_arima(train, order=(1,1,1))
                     if arima_model is not None:
-                        arima_pred = forecast_arima(arima_model, steps=steps)
+                        arima_pred = fm.forecast_arima(arima_model, steps=steps)
                         results['ARIMA(1,1,1)'] = arima_pred
                 except Exception:
                     st.warning("ARIMA model failed to fit. Check data stationarity and try again.")
@@ -123,9 +111,9 @@ def run_forecasting_module():
             if "Holt-Winters" in model_choice:
                 try:
                     seasonal = None if seasonal_periods == 0 else 'add'
-                    hw_model = fit_holtwinters(train, seasonal=seasonal, seasonal_periods=(seasonal_periods or None))                    
+                    hw_model = fm.fit_holtwinters(train, seasonal=seasonal, seasonal_periods=(seasonal_periods or None))                    
                     if hw_model is not None:
-                        hw_pred = forecast_holtwinters(hw_model, steps)
+                        hw_pred = fm.forecast_holtwinters(hw_model, steps)
                         results['Holt-Winters'] = hw_pred
                 except Exception:
                     st.warning("Holt-Winters model failed to fit. Check data and try again.")
@@ -133,9 +121,9 @@ def run_forecasting_module():
             # Prophet (optional)
             if "Prophet*" in model_choice:
                 try:
-                    prophet_model = fit_prophet(train)
+                    prophet_model = fm.fit_prophet(train)
                     if prophet_model is not None:
-                        forecast = forecast_prophet(prophet_model, steps, include_history=False)
+                        forecast = fm.forecast_prophet(prophet_model, steps, include_history=False)
                         prophet_pred = forecast['yhat'].tail(steps).values
                         results['Prophet*'] = prophet_pred
                 except ImportError:
@@ -146,10 +134,10 @@ def run_forecasting_module():
             # XGBoost (optional)
             if "XGBoost*" in model_choice:
                 try:
-                    xgb_model = fit_xgboost(train, max_lag=7)
+                    xgb_model = fm.fit_xgboost(train, max_lag=7)
                     if xgb_model[0] is not None:
                         history = train['y'].values
-                        xgb_pred = forecast_xgboost(xgb_model, steps, history)
+                        xgb_pred = fm.forecast_xgboost(xgb_model, steps, history)
                         results['XGBoost*'] = xgb_pred
                 except ImportError:
                     st.warning("XGBoost model is not installed; skipping.")
@@ -158,9 +146,9 @@ def run_forecasting_module():
 
             # CFO Manual Baseline
             if cfo_mode == "Monthly Growth Rate (%)":
-                cfo_forecast = manual_cfo_growth_rate(train, steps, monthly_growth_pct=float(cfo_growth))
+                cfo_forecast = fm.manual_cfo_growth_rate(train, steps, monthly_growth_pct=float(cfo_growth))
             else:
-                cfo_forecast = manual_cfo_naive_last_value(train, steps)
+                cfo_forecast = fm.manual_cfo_naive_last_value(train, steps)
             results['CFO Manual'] = cfo_forecast
                       
 
@@ -176,8 +164,8 @@ def run_forecasting_module():
                 
                 metrics.append({
                     'Model': model_name,
-                    'MAPE (%)': round(mape(test['y'].values, preds), 2),
-                    'RMSE': round(rmse(test['y'].values, preds), 4)
+                    'MAPE (%)': round(fm.mape(test['y'].values, preds), 2),
+                    'RMSE': round(fm.rmse(test['y'].values, preds), 4)
                 })
             
             if metrics:
@@ -202,7 +190,9 @@ def run_forecasting_module():
 
         # Show recent history + forecasts
         history_tail = df.set_index('ds')['y'].tail(180)
-        st.line_chart(pd.concat([history_tail.rename("History"), plot_df], axis=1))
+        history_tail = history_tail.rename_axis('Date')
+        history_tail.columns = ['History']
+        st.line_chart(pd.concat([history_tail, plot_df], axis=1))
 
 
         # Allow download of forecast results CSV
