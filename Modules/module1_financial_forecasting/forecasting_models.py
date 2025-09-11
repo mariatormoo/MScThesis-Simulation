@@ -122,9 +122,13 @@ def train_test_split(df: pd.DataFrame, test_size: int=30) -> Tuple[pd.DataFrame,
     Simple chronological split by last N rows.
     If test size is 0 or >= len(df) we return appropriate empty or full splits.
     """
-    if test_size <=0 or test_size >= len(df):
+    if df is None or df.empty:
         return df.copy(), df.iloc[0:0].copy()
-    return df.iloc[:-test_size].copy(), df.iloc[-test_size:0].copy()
+    
+    if test_size <= 0 or test_size >= len(df):
+        return df.copy(), df.iloc[0:0].copy()
+    
+    return df.iloc[:-test_size].copy(), df.iloc[-test_size:].copy()
 
 
 # Baseline Models
@@ -169,7 +173,7 @@ def fit_holtwinters(train: pd.DataFrame, seasonal: Optional[str] = None, seasona
         seasonal_periods=seasonal_periods
     )
 
-    fitted_holtwinters = holtwinters_model.fit(optimize=True)
+    fitted_holtwinters = holtwinters_model.fit(optimized=True)
     return fitted_holtwinters
 
 def forecast_holtwinters(fitted_model, steps:int) -> np.ndarray:
@@ -297,10 +301,11 @@ def manual_cfo_growth_rate(train: pd.DataFrame, steps: int, monthly_growth_pct: 
     """
     CFO-style top-down growth assumption.
     monthly_growth_pct is percentage (e.g., 0.5 for 0.5% per month).
+    steps is in days.
     """
     last = float(train["y"].iloc[-1])
     growth = 1.0 + monthly_growth_pct / 100.0
-    vals = [last * (growth ** i) for i in range(1, steps + 1)]
+    vals = [last * (growth ** (i/30)) for i in range(1, steps + 1)]
     return np.array(vals)
 
 

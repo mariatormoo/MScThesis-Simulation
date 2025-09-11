@@ -128,11 +128,11 @@ def run_scenario_module():
     st.subheader("Assumptions")
     col1, col2, col3 = st.columns(3)
     with col1:
-        inflation = st.slider("Inflation (%)", -20.0, 40.0, 5.0, step=0.5, help="Impact on costs and prices.")
+        inflation = st.slider("Inflation (%)", -10.0, 15.0, 2.0, step=0.5, help="Impact on costs and prices.")
     with col2:
         sales_change = st.slider("Sales Change (%)", -50.0, 50.0, 0.0, step=1.0, help="Impact on sales volume or price changes.")
     with col3:
-        interest_rate = st.slider("Interest Rate Change (%)", -50.0, 100.0, 0.0, step=1.0, help="Impact on financing costs.")
+        interest_rate = st.slider("Interest Rate Change (%)", -50.0, 50.0, 2.0, step=1.0, help="Impact on financing costs.")
 
     years = st.slider("Projection Horizon (years)", 1, 10, 3)
     discount_rate = st.slider("Discount Rate (%)", 0.0, 30.0, 10.0, step=0.5, help="For Net Present Value. Use 0% to disable NPV.")
@@ -190,12 +190,16 @@ def run_scenario_module():
 
 
     # Monte Carlo Stress Test
+    
     with st.expander("🎲 Monte Carlo Stress Test", expanded=False):
         runs = st.slider("Simulation Runs", 100, 5000, 1000, step=100)
 
         # Simple Assumption: Normal noise around the selected % changes
         #st.status("Running simulation…", state= 'running', expanded=False)
-        st.success("Simulation complete!")
+        with st.status("Running simulation...", expanded=False) as s:
+            s.update(label="Calculating Profits...", state='running')
+            s.update(label="Simulation Completed!", state='complete')
+                
         sales_mu, sales_sd = sales_change, max(1.0, abs(sales_change)/3)
         infl_mu, infl_sd = inflation, max(1.0, abs(inflation)/3)
         interest_rate_mu, interest_rate_sd = interest_rate, max(1.0, abs(interest_rate)/3)
@@ -206,11 +210,13 @@ def run_scenario_module():
         interest_rate_draws = time_range.normal(loc=interest_rate_mu, scale=interest_rate_sd, size=runs)
 
         sim_profits = base_sales * (1 + sales_draws / 100) - base_costs * (1 + infl_draws / 100) - base_interest * (1 + interest_rate_draws / 100)
+        st.markdown("*(Note: This is a simplified Monte Carlo simulation for demonstration purposes only.)*")
         st.write(f"**Mean Profit:** {sim_profits.mean():,.2f}$")
         st.write(f"**Median:** {np.median(sim_profits):,.2f}$")
         st.write(f"**5th Percentile:** {np.percentile(sim_profits, 5):,.2f}$")
         st.write(f"**95th Percentile:** {np.percentile(sim_profits, 95):,.2f}$")
         st.write(f"**Loss Probability:** {(sim_profits < 0).mean():.2%}")
+        st.subheader("\n**Profit Distribution Histogram of Monte Carlo Simulations:**")
         st.bar_chart(pd.Series(sim_profits, name="Profit Distribution"), use_container_width=True)
 
 

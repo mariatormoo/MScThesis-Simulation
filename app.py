@@ -283,8 +283,6 @@ def page_scenario() -> None:
 
 # Generative AI Decision Reports Page
 def page_ai_reports() -> None:
-    st.subheader("🤖 Generative AI Decision Reports")
-    st.caption("Draft concise, board-ready narratives from your analysis.")
     
     from Modules.module3_generative_AI.genai_reports import run_genai_module
     run_genai_module()
@@ -323,6 +321,18 @@ if page == "home":
 
     page_home()
 
+    st.divider()
+
+    # Feedback Section (need to refine this, it appears on all pages)
+    st.markdown("🌟 Leave your feedback on this prototype:")
+    sentiment_mapping = ['1', '2', '3', '4', '5']
+    selected_sentiment = st.feedback("stars")
+    if selected_sentiment is not None:
+        st.toast(
+            f"Thank you for your feedback! You rated us {sentiment_mapping[selected_sentiment]} star(s).",
+            icon="✅",
+        )
+
 elif page == "forecasting":
     page_forecasting()
 
@@ -337,15 +347,3 @@ else:
     set_qp(page="home")
     st.session_state.active_page = "home"
     st.rerun()
-
-st.divider()
-
-# Feedback Section (need to refine this, it appears on all pages)
-st.markdown("🌟 Leave your feedback on this prototype:")
-sentiment_mapping = ['1', '2', '3', '4', '5']
-selected_sentiment = st.feedback("stars")
-if selected_sentiment is not None:
-    st.toast(
-        f"Thank you for your feedback! You rated us {sentiment_mapping[selected_sentiment]} star(s).",
-        icon="✅",
-    )
