@@ -130,9 +130,9 @@ def run_scenario_module():
     with col1:
         inflation = st.slider("Inflation (%)", -10.0, 15.0, 2.0, step=0.5, help="Impact on costs and prices.")
     with col2:
-        sales_change = st.slider("Sales Change (%)", -50.0, 50.0, 0.0, step=1.0, help="Impact on sales volume or price changes.")
+        sales_change = st.slider("Sales Change (%)", -100.0, 100.0, 0.0, step=1.0, help="Impact on sales volume or price changes.")
     with col3:
-        interest_rate = st.slider("Interest Rate Change (%)", -50.0, 50.0, 2.0, step=1.0, help="Impact on financing costs.")
+        interest_rate = st.slider("Interest Rate (%)", -20.0, 20.0, 2.0, step=0.5, help="Impact on financing costs.")
 
     years = st.slider("Projection Horizon (years)", 1, 10, 3)
     discount_rate = st.slider("Discount Rate (%)", 0.0, 30.0, 10.0, step=0.5, help="For Net Present Value. Use 0% to disable NPV.")

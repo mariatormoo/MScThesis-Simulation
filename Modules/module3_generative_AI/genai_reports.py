@@ -315,10 +315,10 @@ def _local_suggestion_engine(prompt: str) -> str:
     if any(word in prompt for word in ["kpi", "metric", "growth", "margin"]):
        return "KPI-focused ideas:\n- " + "\n- ".join(SUGGESTION_SEEDS["KPIs"])
     
-    if any(word in prompt for word in ["visual", "chart", "slide", "exec"]):
+    if any(word in prompt for word in ["visual", "chart", "slide", "image"]):
        return "Visualization-focused ideas:\n- " + "\n- ".join(SUGGESTION_SEEDS["Visuals"])
     
-    if any(word in prompt for word in ["board", "cfo", "director", "uncertain"]):
+    if any(word in prompt for word in ["board", "cfo", "director", "uncertain", "executive"]):
        return "Board-framing ideas:\n- " + "\n- ".join(SUGGESTION_SEEDS["Board framing"])
     
 

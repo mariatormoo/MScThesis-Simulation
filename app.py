@@ -171,18 +171,18 @@ def page_home() -> None:
     with c1:
         st.markdown("#### 1. Financial Forecasting")
         #st.markdown("Cashflow, runway, and key ratios.")
-        st.markdown("<span class='pill'>Time series</span> <span class='pill'>ARIMA/Prophet/XGBoost</span>", unsafe_allow_html=True)
+        st.markdown("<span class='pill'>Time series</span> <span class='pill'>AI Models</span>", unsafe_allow_html=True)
         st.markdown(
             """
             **Purpose:** Quickly forecast revenues, costs, and financial metrics.
 
             **Features:**
-            - Train AI models (ARIMA, Prophet, XGBoost) on demo or uploaded data.
-            - Adjust inputs like seasonality, market trends, or shocks.
+            - Train AI models (ARIMA, Holt-Winters, Prophet, XGBoost) on demo or uploaded data.
+            - Adjust inputs like forecast horizon, holdout size and seasonal periods (for Holt-Winters model).
             - Compare **AI forecasts vs. manual CFO predictions**.
-            - Outputs: accuracy metrics, graphs, scenario comparisons.
+            - Outputs: accuracy metrics, graphs, comparisons.
 
-            **Objective:** Quantify differences in speed, accuracy, and bias detection.
+            **Objective:** Quantify differences in speed and accuracy.
             """,
             unsafe_allow_html=True,
         )
@@ -191,21 +191,22 @@ def page_home() -> None:
             st.session_state.active_page = "forecasting"
             set_qp(page="forecasting")
             st.rerun()
-        st.markdown("---")
-        st.caption("Upload Historicals or use Demo data to generate forward-looking projections even with uncertainties.")
+        #st.markdown("---")
+        #st.caption("Upload Historicals or use Demo data to generate forward-looking projections even with uncertainties.")
 
     with c2:
         st.markdown("#### 2. Scenario Planning")
         #st.markdown("Stress-test and compare strategic paths.")
-        st.markdown("<span class='pill'>Best/Base/Worst Cases</span> <span class='pill'>What‑ifs</span> <span class='pill'>Visualizations</span>", unsafe_allow_html=True)
+        st.markdown("<span class='pill'>Case Comparison</span> <span class='pill'>What‑ifs</span> <span class='pill'>Visualizations</span>", unsafe_allow_html=True)
         st.markdown(
             """
             **Purpose:** Test “what-if” scenarios for strategic planning.
 
             **Features:**
-            - Modify drivers (inflation, interest rates, sales decline) via sliders.
-            - Dynamically recalculate forecasts and visualize outcomes.
-            - Visual outputs: waterfall charts, sensitivity tornado graphs, stress tests.
+            - Modify drivers (inflation, interest rates, sales, expenses, discount rate, time horizon) via sliders.
+            - Dynamically recalculate forecasts and visualize outcomes rapidly.
+            - Project Free Cash Flows and identify what changes mostly move profit.
+            - Visual outputs: waterfall charts, sensitivity tornado graphs, monte carlo simulations.
 
             **Objective:** Explore impact of assumptions on KPIs over 3–5 year horizons.
             """,
@@ -216,13 +217,13 @@ def page_home() -> None:
             st.session_state.active_page = "scenario"
             set_qp(page="scenario")
             st.rerun()
-        st.markdown("---")
-        st.caption("Define drivers and assumptions; see outcomes, distributions and insights.")
+        #st.markdown("---")
+        #st.caption("Define drivers and assumptions; see outcomes, distributions and insights.")
 
     with c3:
         st.markdown("#### 3. Generative AI Decision Reports")
         #st.markdown("Auto-draft executive memos from your numbers.")
-        st.markdown("<span class='pill'>Narratives</span> <span class='pill'>Charts</span> <span class='pill'>Action items</span>", unsafe_allow_html=True)
+        st.markdown("<span class='pill'>Download Narratives</span> <span class='pill'>Chatbot</span>", unsafe_allow_html=True)
         st.markdown(
             """
             **Purpose:** Auto-generate executive-ready reports from your data.
@@ -230,7 +231,9 @@ def page_home() -> None:
             **Features:**
             - Integrates GPT-4 API for narrative generation.
             - Generate forecast summaries, risk reports, or board presentation content.
+            - Tailor with inputs: tone, risk appetite, length, GPT model, time horizon, creativity level and context.
             - Include insights, risk/opportunity narratives, and recommended actions.
+            - Chatbot for further suggestions.
 
             **Objective:** Turn numbers and KPIs into concise, actionable reports instantly.
             """,
@@ -241,22 +244,9 @@ def page_home() -> None:
             st.session_state.active_page = "ai_reports"
             set_qp(page="ai_reports")
             st.rerun()
-        st.markdown("---")
-        st.caption("Automatically turn insights into recommendations for the board.")
+        #st.markdown("---")
+        #st.caption("Automatically turn insights into recommendations for the board.")
 
-    st.divider()
-    
-    with st.expander("👀 What judges want to see (quick checklist), for competitions"):
-        st.markdown(
-            """
-            - Immediate Clarity (what it does, in 1 sentence)
-            - Minimal clicks to ‘wow’ (demo data preloaded)
-            - Beautiful defaults (theme, spacing, typography)
-            - Speed (lazy loading + caching)
-            - A clear story: **input → analysis → insight → action**
-            - Export or share output (e.g., PDF/Markdown)
-            """
-        )
 
 # Financial Forecasting Page
 def page_forecasting() -> None:
@@ -313,7 +303,7 @@ if page == "home":
             """
             <div class="app-hero">
                 <h3 style="margin:0">Make Better Decisions, Faster.</h3>
-                <p class="muted" style="margin:.25rem 0 0 0">Forecast financials, stress test scenarios, and auto-generate executive-ready decision reports.</p>
+                <p class="muted" style="margin:.25rem 0 0 0">Forecast financials, test scenarios, and auto-generate executive-ready decision reports.</p>
             </div>
             """,
             unsafe_allow_html=True,

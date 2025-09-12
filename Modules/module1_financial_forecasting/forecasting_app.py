@@ -101,8 +101,8 @@ def run_forecasting_module():
                                                "\nSet to 0 for no seasonality. Set > 1 to enable additive seasonality.\n" \
                                                "\ne.g., daily data with weekly seasonality (7 periods), monthly data with yearly seasonality (12 periods).")
         
-        if seasonal_periods == 2:
-            st.warning("Seasonal period cannot be 2. Please choose 0 or a greater value.")
+        if seasonal_periods == 1:
+            st.warning("Seasonal period cannot be 1. Please choose 0 or a greater value starting from 2 onwards.")
 
 
     # ----------------------------------
@@ -150,13 +150,16 @@ def run_forecasting_module():
             # --- Prophet (optional) ---
             if "Prophet*" in model_choice:
                 try:
-                    # Before fitting profet
-                    train = train.copy()
-                    train['ds'] = pd.to_datetime(train['ds'])
-                    train['y'] = pd.to_numeric(train['y'], errors='coerce')
-                    train = train.dropna(susbet=['y']) # drop rows where couldn't convert
+                    # Before fitting profet, ensure correct types (NON WORKING)
+                    train_prophet = train.copy()
+                    train_prophet['ds'] = pd.to_datetime(train_prophet['ds'], errors='coerce')
+                    train_prophet['y'] = pd.to_numeric(train_prophet['y'], errors='coerce')
+                    train_prophet.head()
+                    train_prophet = train_prophet.dropna(susbet=['ds', 'y']) # drop rows where couldn't convert
+                    train_prophet = train_prophet.sort_values('ds').reset_index(drop=True)
 
-                    prophet_model = fm.fit_prophet(train)
+                   
+                    prophet_model = fm.fit_prophet(train_prophet)
 
                     if prophet_model is not None:
                         forecast = fm.forecast_prophet(prophet_model, steps, include_history=False)
@@ -249,4 +252,3 @@ def run_forecasting_module():
             file_name='forecasts.csv',
             mime='text/csv',
         )
-
